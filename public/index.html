@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎮 4x4 Tic-Tac-Toe | Комнаты с друзьями</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0a0f1f, #03060c);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #f0f3fa;
+        }
+
+        .app-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(12, 22, 35, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 2.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(80, 150, 255, 0.2);
+        }
+
+        .screen {
+            transition: 0.2s;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* лобби */
+        .lobby-card {
+            background: rgba(14, 22, 36, 0.95);
+            border-radius: 2rem;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid #3a6c9e;
+        }
+        h1, h2, h3, p, span, div {
+            color: #f0f3fa;
+        }
+        .input-group {
+            margin: 1rem 0;
+        }
+        input, button {
+            background: #1e2a3a;
+            border: 1px solid #4c7a9e;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: white !important;
+            transition: 0.1s linear;
+        }
+        input::placeholder {
+            color: #aac9ff;
+            opacity: 0.7;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ffb347;
+            background: #0f1f2f;
+        }
+        button {
+            background: #2266a8;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+        .room-code {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: #00000077;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 40px;
+            letter-spacing: 4px;
+            color: #ffefcf;
+        }
+
+        /* игровая панель */
+        .game-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .board-area {
+            flex: 2;
+            min-width: 320px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            background: #0f1825;
+            padding: 20px;
+            border-radius: 2rem;
+            aspect-ratio: 1 / 1;
+        }
+        .cell {
+            background: #1b2a3f;
+            border-radius: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.07s linear;
+            box-shadow: 0 6px 0 #03070e;
+            border: 1px solid #4a7cac;
+            color: #ffffff;
+            text-shadow: 0 2px 3px black;
+        }
+        .cell.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+        .turn-info {
+            background: #09101cd9;
+            border-radius: 2rem;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffefcf;
+        }
+        .ranking-area {
+            flex: 1;
+            background: #0a111fd9;
+            border-radius: 2rem;
+            padding: 1.2rem;
+        }
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+        }
+        .rank-table th, .rank-table td {
+            padding: 10px 6px;
+            border-bottom: 1px solid #2a4c6e;
+            color: #f0f3fa;
+        }
+        .symbol-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd966;
+        }
+        .current-user-row {
+            background-color: #2a4c6e;
+            font-weight: bold;
+            box-shadow: inset 0 0 0 2px #ffb347;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+        button#leaveRoomBtn {
+            background: #7a2e4a;
+            border-color: #ff96b9;
+        }
+        #roomIdDisplay {
+            background: #00000066;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+        }
+        /* уголок с пользователем */
+        .user-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1f2f3fd9;
+            backdrop-filter: blur(8px);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px solid #ffb347;
+            color: #ffefcf;
+            font-family: monospace;
+            z-index: 100;
+            box-shadow: 0 4px 12px black;
+            pointer-events: none;
+        }
+        .user-badge span {
+            color: #ffd966;
+        }
+        @media (max-width: 700px) {
+            .cell { font-size: 1.6rem; }
+            .board { gap: 6px; padding: 10px; }
+            .user-badge { font-size: 0.7rem; bottom: 8px; right: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app">
+    <!-- Экран лобби -->
+    <div id="lobbyScreen" class="screen">
+        <div class="lobby-card">
+            <h1 style="margin:0 0 1rem;">🌟 4x4 TIC-TAC-TOE ROOMS</h1>
+            <p>Собери 4 друзей, каждый играет своим символом: X O ▿ ⚫</p>
+            <div class="input-group">
+                <input type="text" id="playerNameInput" placeholder="Ваше имя" maxlength="16" style="color:white;">
+            </div>
+            <div class="input-group">
+                <button id="createRoomBtn">✨ СОЗДАТЬ КОМНАТУ</button>
+                <span style="margin:0 1rem; color:#bbddff;">или</span>
+                <input type="text" id="joinRoomIdInput" placeholder="Код комнаты" style="width:120px; color:white;">
+                <button id="joinRoomBtn">ВОЙТИ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран игры -->
+    <div id="gameScreen" class="screen hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+            <h2>🎲 Комната: <span id="roomIdDisplay">---</span></h2>
+            <button id="leaveRoomBtn">🚪 Выйти</button>
+        </div>
+        <div class="game-panel">
+            <div class="board-area">
+                <div class="turn-info" id="turnInfo">Ожидание игроков...</div>
+                <div class="board" id="board"></div>
+                <div class="btn-group">
+                    <button id="resetGameBtn">🔄 Новая игра</button>
+                    <button id="resetRankBtn">🏆 Сброс рангов</button>
+                </div>
+            </div>
+            <div class="ranking-area">
+                <h3>🏅 Рейтинг комнаты</h3>
+                <div id="rankingsContainer">---</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- уголок с вашими данными -->
+<div id="globalUserBadge" class="user-badge" style="display: none;">🔹 Вы: <span id="badgeName">---</span> (<span id="badgeSymbol">?</span>)</div>
+
+<script>
+    const socket = io();
+    let currentRoomId = null;
+    let currentPlayerSymbol = null;
+    let currentPlayerName = null;
+    let currentBoard = null;
+    let gameActiveLocal = false;
+    let myTurn = false;
+    let playersList = [];
+
+    const lobbyScreen = document.getElementById('lobbyScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const roomIdSpan = document.getElementById('roomIdDisplay');
+    const boardContainer = document.getElementById('board');
+    const turnInfoDiv = document.getElementById('turnInfo');
+    const rankingsDiv = document.getElementById('rankingsContainer');
+    const globalBadge = document.getElementById('globalUserBadge');
+    const badgeNameSpan = document.getElementById('badgeName');
+    const badgeSymbolSpan = document.getElementById('badgeSymbol');
+
+    function updateUserBadge(name, symbol) {
+        if (name && symbol) {
+            badgeNameSpan.innerText = name;
+            badgeSymbolSpan.innerText = symbol;
+            globalBadge.style.display = 'flex';
+        } else {
+            globalBadge.style.display = 'none';
+        }
+    }
+
+    function showGameScreen() { 
+        lobbyScreen.classList.add('hidden'); 
+        gameScreen.classList.remove('hidden');
+    }
+    function showLobbyScreen() { 
+        gameScreen.classList.add('hidden'); 
+        lobbyScreen.classList.remove('hidden');
+        globalBadge.style.display = 'none';
+    }
+
+    function renderBoard(board) {
+        boardContainer.innerHTML = '';
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                const val = board[i][j];
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                if (val !== '') cell.classList.add('disabled');
+                cell.textContent = val;
+                cell.addEventListener('click', () => {
+                    if (gameActiveLocal && myTurn && currentBoard && currentBoard[i][j] === '') {
+                        socket.emit('makeMove', { roomId: currentRoomId, row: i, col: j }, (resp) => {
+                            if (resp && resp.error) alert(resp.error);
+                        });
+                    }
+                });
+                boardContainer.appendChild(cell);
+            }
+        }
+    }
+
+    function updateRankingUI(players) {
+        if (!players) return;
+        const sorted = [...players].sort((a,b) => b.wins - a.wins);
+        let html = `<table class="rank-table"><thead><tr><th>#</th><th>Игрок</th><th>Символ</th><th>🏆</th></tr></thead><tbody>`;
+        sorted.forEach((p, idx) => {
+            const isCurrentUser = (p.name === currentPlayerName && p.symbol === currentPlayerSymbol);
+            const rowClass = isCurrentUser ? 'current-user-row' : '';
+            html += `<tr class="${rowClass}">
+                        <td>${idx+1}</td>
+                        <td>${escapeHtml(p.name)} ${isCurrentUser ? '👈 вы' : ''}</td>
+                        <td class="symbol-badge">${p.symbol}</td>
+                        <td style="font-weight:bold;color:#ffd966;">${p.wins}</td>
+                      </tr>`;
+        });
+        html += `</tbody></table>`;
+        rankingsDiv.innerHTML = html;
+    }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    // ===================== ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ =====================
+    socket.on('roomUpdate', (data) => {
+        playersList = data.players;
+        updateRankingUI(playersList);
+        if (!data.gameActive && data.playerCount < 4) {
+            turnInfoDiv.innerHTML = `👥 Игроков: ${data.playerCount}/4 ⏳ Ожидание 4 игроков...`;
+        } else if (data.gameActive) {
+            // ничего не меняем
+        } else if (data.playerCount === 4 && !data.gameActive) {
+            turnInfoDiv.innerHTML = '🎲 Игра начнётся автоматически!';
+        }
+        if (data.warning) turnInfoDiv.innerHTML += `<br>⚠️ ${data.warning}`;
+    });
+
+    socket.on('gameStarted', (data) => {
+        currentBoard = data.board;
+        gameActiveLocal = true;
+        playersList = data.players;          // <-- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ
+        const currentSymbolTurn = data.turnSymbol;
+        const myPlayer = playersList.find(p => p.symbol === currentPlayerSymbol);
+        myTurn = (myPlayer && myPlayer.symbol === currentSymbolTurn);
+        renderBoard(currentBoard);
+        updateRankingUI(playersList);
+        turnInfoDiv.innerHTML = `🔥 Игра началась! Ход: ${data.turnSymbol} — ${myTurn ? 'ВАШ ХОД!' : 'Ждите...'}`;
+        if (myTurn) turnInfoDiv.style.border = '2px solid #ffb347';
+        else turnInfoDiv.style.border = 'none';
+    });
+
+    socket.on('moveMade', (data) => {
+        currentBoard = data.board;
+        renderBoard(currentBoard);
+        const nextSymbol = data.turnSymbol;
+        const myPlayer = playersList?.find(p => p.symbol === currentPlayerSymbol);
+        myTurn = (myPlayer && myPlayer.symbol === nextSymbol);
+        turnInfoDiv.innerHTML = `🎲 Ход: ${nextSymbol} (${data.nextPlayerName || '...'}) — ${myTurn ? '👉 Ваша очередь' : 'ожидание'}`;
+        if (myTurn) turnInfoDiv.style.border = '2px solid #ffb347';
+        else turnInfoDiv.style.border = 'none';
+    });
+
+    socket.on('gameOver', (data) => {
+        gameActiveLocal = false;
+        myTurn = false;
+        currentBoard = data.board;
+        playersList = data.players;          // <-- ИСПРАВЛЕНИЕ
+        renderBoard(currentBoard);
+        updateRankingUI(playersList);
+        turnInfoDiv.innerHTML = `🏆 ПОБЕДА! ${data.winnerName} (${data.winnerSymbol}) выигрывает! 🏆<br> Нажмите "Новая игра"`;
+        turnInfoDiv.style.border = 'none';
+    });
+
+    socket.on('gameDraw', (data) => {
+        gameActiveLocal = false;
+        myTurn = false;
+        currentBoard = data.board;
+        playersList = data.players;          // <-- ИСПРАВЛЕНИЕ
+        renderBoard(currentBoard);
+        updateRankingUI(playersList);
+        turnInfoDiv.innerHTML = `🤝 НИЧЬЯ! Поле заполнено. Нажмите "Новая игра"`;
+        turnInfoDiv.style.border = 'none';
+    });
+
+    socket.on('gameReset', (data) => {
+        currentBoard = data.board;
+        gameActiveLocal = true;
+        playersList = data.players;          // <-- ИСПРАВЛЕНИЕ
+        renderBoard(currentBoard);
+        const myPlayer = playersList.find(p => p.symbol === currentPlayerSymbol);
+        myTurn = (myPlayer && myPlayer.symbol === data.turnSymbol);
+        turnInfoDiv.innerHTML = `🔄 Новая игра! Ход: ${data.turnSymbol} — ${myTurn ? 'Ваш ход' : 'ожидание'}`;
+        if (myTurn) turnInfoDiv.style.border = '2px solid #ffb347';
+        else turnInfoDiv.style.border = 'none';
+        updateRankingUI(playersList);
+    });
+
+    socket.on('rankingReset', (data) => {
+        playersList = data.players;          // <-- ИСПРАВЛЕНИЕ
+        updateRankingUI(playersList);
+        turnInfoDiv.innerHTML += `<br>✨ Ранги сброшены`;
+    });
+
+    // создание комнаты
+    document.getElementById('createRoomBtn').onclick = () => {
+        const name = document.getElementById('playerNameInput').value.trim();
+        if (!name) return alert('Введите имя');
+        currentPlayerName = name;
+        socket.emit('createRoom', { playerName: name }, (resp) => {
+            if (resp.roomId) {
+                currentRoomId = resp.roomId;
+                currentPlayerSymbol = resp.symbol;
+                roomIdSpan.innerText = currentRoomId;
+                updateUserBadge(currentPlayerName, currentPlayerSymbol);
+                showGameScreen();
+                turnInfoDiv.innerHTML = `✅ Комната ${currentRoomId} создана. Ваш символ: ${currentPlayerSymbol}. Ждите 4 игроков.`;
+            }
+        });
+    };
+    // присоединение к комнате
+    document.getElementById('joinRoomBtn').onclick = () => {
+        const name = document.getElementById('playerNameInput').value.trim();
+        const roomId = document.getElementById('joinRoomIdInput').value.trim().toUpperCase();
+        if (!name || !roomId) return alert('Имя и код комнаты');
+        currentPlayerName = name;
+        socket.emit('joinRoom', { roomId, playerName: name }, (resp) => {
+            if (resp.error) return alert(resp.error);
+            currentRoomId = resp.roomId;
+            currentPlayerSymbol = resp.symbol;
+            roomIdSpan.innerText = currentRoomId;
+            updateUserBadge(currentPlayerName, currentPlayerSymbol);
+            showGameScreen();
+            turnInfoDiv.innerHTML = `✅ Вы вошли в комнату ${currentRoomId} c символом ${currentPlayerSymbol}. Ожидание игроков...`;
+        });
+    };
+    document.getElementById('leaveRoomBtn').onclick = () => { location.reload(); };
+    document.getElementById('resetGameBtn').onclick = () => {
+        if (currentRoomId) socket.emit('resetGame', { roomId: currentRoomId });
+    };
+    document.getElementById('resetRankBtn').onclick = () => {
+        if (currentRoomId && confirm('Сбросить все очки побед в этой комнате?'))
+            socket.emit('resetRanking', { roomId: currentRoomId });
+    };
+</script>
+</body>
+</html>
