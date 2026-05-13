@@ -3,8 +3,6 @@
 > A multiplayer Tic‑Tac‑Toe game on a 4×4 board for four players.  
 > Create rooms, invite friends, and compete in the ranking.
 
-![Gameplay Preview](https://via.placeholder.com/800x400?text=4+Player+Tic-Tac-Toe)
-
 ---
 
 ## ✨ Features
@@ -51,21 +49,24 @@
    ```bash
    git clone https://github.com/your-username/four-player-ttt.git
    cd four-player-ttt
-Install dependencies
+   
+2. **Install dependencies**
 
-bash
-npm install express socket.io
-Start the server
+   ```bash
+   npm install express socket.io
+   Start the server
 
-bash
-node server.js
-Open the game in your browser
+   ```bash
+   node server.js
+
+3. **Open the game in your browser**
 
 Go to http://localhost:3000
 
 Invite friends on the same network using your local IP (e.g., http://192.168.1.10:3000)
 
-🌍 Deployment (online)
+## 🌍 Deployment (online)
+
 You can deploy the game to free hosting services that support WebSockets, such as:
 
 Render (render.com) – easy Node.js deployment
@@ -75,10 +76,3 @@ Railway (railway.app)
 Glitch (with some limitations)
 
 Make sure your server listens on process.env.PORT (already set up in server.js).
-
-🐛 Known Limitations
-The game only works when exactly 4 players are in the room. If someone leaves, the game stops.
-
-The ranking is not saved after server restart – it lives only in memory. For permanent storage, a database would be needed.
-
-No built‑in voice chat – use Discord / Telegram for communication.
