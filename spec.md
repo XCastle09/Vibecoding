@@ -1,23 +1,23 @@
-# Specification – Four‑Player Tic‑Tac‑Toe (4×4) with Rooms & Ranking
+# Specification – Four‑Player Tic‑Tac‑Toe (4x4) with Rooms & Ranking
 
 ## 1. Project Goal
-Create a **real‑time multiplayer web game** where four players can play Tic‑Tac‑Toe on a **4×4 board**.  
-The game supports **rooms** (each room is a separate game instance) and **player ranking** inside the room.
+Build a **real‑time multiplayer web game** where four players can play Tic‑Tac‑Toe on a **4×4 board**.  
+The game must support **rooms** (each room is a separate game instance) and **player ranking** inside the room.
 
 ## 2. User Persona
 - Casual gamers who want to play with exactly three friends online.  
-- No registration required – just enter a nickname and room code.
+- No registration – just a nickname and a room code.
 
 ## 3. Required Scenarios
-- **Create room** – one player becomes the host, gets a unique room code.  
+- **Create room** – one player becomes the host, gets a unique 6‑character room code.  
 - **Join room** – three other players enter the code and their names.  
 - **Game start** – automatically when 4 players are present.  
-- **Turn‑based play** – order: X → O → ▿ → ⚫.  
+- **Turn‑based play** – fixed order: X → O → ▿ → ⚫.  
 - **Win detection** – any line of 4 identical symbols horizontally, vertically, or diagonally.  
 - **Ranking** – winner gets +1 point; table sorted by wins.  
 - **Reset game** – clear board, keep ranking.  
 - **Reset ranking** – set all wins to 0.  
-- **Leave room** – player can leave, game stops for remaining players.
+- **Leave room** – player can leave, game stops for remaining players (warning shown).
 
 ## 4. In Scope
 - 4×4 board with win condition (4 in a row).  

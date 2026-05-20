@@ -1,6 +1,12 @@
 # Tasks – Four‑Player Tic‑Tac‑Toe (4×4) with Rooms & Ranking
 
-## Phase 1: Backend & Core Game Logic
+## Phase 0: Create Specifications (Vibe Coding – documentation first)
+- [x] Write `AGENTS.md` – instructions for the AI agent (coding rules, workflow).  
+- [x] Write `spec.md` – functional and non‑functional requirements, acceptance criteria.  
+- [x] Write `plan.md` – technical architecture, algorithms, data structures, socket events.  
+- [x] Write `tasks.md` – this task list (breakdown of work for the agent).  
+
+## Phase 1: Backend & Core Game Logic (AI agent follows the specs)
 - [x] Set up Express server with Socket.IO.  
 - [x] Implement room creation (random 6‑char code).  
 - [x] Implement joining room (max 4 players).  
@@ -12,7 +18,7 @@
 - [x] Add reset game event (clears board, keeps ranking).  
 - [x] Add reset ranking event (zeroes all wins).
 
-## Phase 2: Frontend UI
+## Phase 2: Frontend UI (AI agent follows the specs)
 - [x] Create `public/index.html` with responsive CSS.  
 - [x] Build lobby screen (create room / join room).  
 - [x] Build game screen (4×4 board, turn info, ranking table).  
@@ -28,13 +34,10 @@
 - [x] Improve visual feedback (win highlight, turn border).  
 - [x] Add leave room handling (warning and game stop).  
 
-## Phase 4: Documentation & Delivery
+## Phase 4: Delivery & Final Verification
 - [x] Write `README.md` (project description, setup, deployment).  
-- [x] Write `AGENTS.md` (guidelines for AI agents).  
-- [x] Write `spec.md` (functional and non‑functional requirements).  
-- [x] Write `plan.md` (technical architecture and algorithms).  
+- [x] Push all code and documentation to GitHub.  
 - [ ] Add automated tests (future improvement – not required for submission).  
-- [x] Push all code and documentation to GitHub.
 
 ## Current Status
 ✅ **All core features complete.** The game is fully playable with 4 players.  
