@@ -19,6 +19,7 @@
   winner: string | null,    // winner symbol or null
   draw: boolean             // true if draw
 }
+```
 
 ### Symbols order
 ['X', 'O', '▿', '⚫']
@@ -36,8 +37,9 @@ Diagonal \: top‑left to bottom‑right, positions (r,c) with r=c offsets.
 Diagonal /: top‑right to bottom‑left, positions (r, c) where r + c = constant.
 
 ### Turn switching
-js
+```js
 currentTurn = (currentTurn + 1) % 4;
+```
 ### Room lifecycle
 Create room – generate random 6‑char code, create empty room, first player gets 'X'.
 
@@ -54,19 +56,22 @@ Reset game – clear board, reset turn, keep players and wins.
 Reset ranking – set all wins to 0.
 
 ## Socket Events (client ↔ server)
-Event	Direction	Payload	Description
-createRoom	client → server	{ playerName }	Returns { roomId, symbol }
-joinRoom	client → server	{ roomId, playerName }	Returns { roomId, symbol } or error
-makeMove	client → server	{ roomId, row, col }	Validates and processes move
-resetGame	client → server	{ roomId }	Clears board, keeps ranking
-resetRanking	client → server	{ roomId }	Zeroes wins for all players
-roomUpdate	server → client	{ players, playerCount, gameActive, warning? }	Updates lobby status
-gameStarted	server → client	{ board, currentTurn, players, turnSymbol }	Starts the game for all 4
-moveMade	server → client	{ board, currentTurn, turnSymbol, nextPlayerName }	Updates board and turn
-gameOver	server → client	{ winnerSymbol, winnerName, board, players }	Announces winner
-gameDraw	server → client	{ board, players }	Announces draw
-gameReset	server → client	{ board, currentTurn, turnSymbol, players }	Resets board after manual reset
-rankingReset	server → client	{ players }	Updates ranking table after reset
+
+| Event           | Direction         | Payload                                           | Description                                      |
+|----------------|-------------------|---------------------------------------------------|--------------------------------------------------|
+| `createRoom`    | client → server   | `{ playerName }`                                  | Returns `{ roomId, symbol }`                     |
+| `joinRoom`      | client → server   | `{ roomId, playerName }`                          | Returns `{ roomId, symbol }` or error            |
+| `makeMove`      | client → server   | `{ roomId, row, col }`                            | Validates and processes move                     |
+| `resetGame`     | client → server   | `{ roomId }`                                      | Clears board, keeps ranking                      |
+| `resetRanking`  | client → server   | `{ roomId }`                                      | Zeroes wins for all players                      |
+| `roomUpdate`    | server → client   | `{ players, playerCount, gameActive, warning? }`  | Updates lobby status                             |
+| `gameStarted`   | server → client   | `{ board, currentTurn, players, turnSymbol }`     | Starts the game for all 4                        |
+| `moveMade`      | server → client   | `{ board, currentTurn, turnSymbol, nextPlayerName }` | Updates board and turn                         |
+| `gameOver`      | server → client   | `{ winnerSymbol, winnerName, board, players }`    | Announces winner                                 |
+| `gameDraw`      | server → client   | `{ board, players }`                              | Announces draw                                   |
+| `gameReset`     | server → client   | `{ board, currentTurn, turnSymbol, players }`     | Resets board after manual reset                  |
+| `rankingReset`  | server → client   | `{ players }`                                     | Updates ranking table after reset                |
+
 ## Frontend Logic
 Lobby screen – input name, create/join room.
 
@@ -96,7 +101,7 @@ Ranking – verify wins increment only once per game, reset works.
 
 Concurrency – create multiple rooms simultaneously.
 
-Known Limitations
+## Known Limitations
 Ranking is in‑memory – resets after server restart (by design).
 
 No persistent storage – a database (SQLite/PostgreSQL) would be required for permanent rankings.
